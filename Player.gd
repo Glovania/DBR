@@ -10,15 +10,21 @@ enum DynamicCameraViewToggleAction {
 
 # First Player View (FPP)
 @onready var fpp_camera: Camera3D = $FPPCamera
-@onready var fpp_pistol: Node3D = $FPPCamera/FPPPistol
 @onready var fpp_muzzle_flash: GPUParticles3D = $FPPCamera/FPPPistol/MuzzleFlash
 @onready var fpp_raycast: RayCast3D = $FPPCamera/FPPRayCast3D
 
+@onready var fpp_pistol: Node3D = $FPPCamera/FPPPistol
+@onready var fpp_ak47: Node3D = $FPPCamera/FPPAK47
+@onready var fpp_knife: Node3D = $FPPCamera/FPPKnife
+
 # Third Player View (TPP)
 @onready var tpp_camera: Camera3D = $TPPCamera
-@onready var tpp_pistol: Node3D = $TPPCamera/TPPPistol
 @onready var tpp_muzzle_flash: GPUParticles3D = $TPPCamera/TPPPistol/MuzzleFlash
 @onready var tpp_raycast: RayCast3D = $TPPCamera/TPPRayCast3D
+
+@onready var tpp_pistol: Node3D = $TPPCamera/TPPPistol
+#@onready var tpp_ak47: Node3D = $TPPCamera/TPPAK47
+#@onready var tpp_knife: Node3D = $TPPCamera/TPPKnife
 
 # Multiplayer Synchronizer
 @onready var multiplayer_sync: MultiplayerSynchronizer = $MultiplayerSynchronizer
@@ -46,12 +52,28 @@ var gravity = 25.0
 # Track different state of camera node to toggle either FPP or TPP.
 var is_fpp: bool = true
 
+# Dictionary to map weapon names to their corresponding scenes
+var weapon_scenes = {}
+
+# Set intial weapon to load
+var initial_weapon: Node3D
+var current_weapon_name: String = "Glock-19"
+
 
 func _enter_tree():
 	set_multiplayer_authority(str(name).to_int())
 
 
 func _ready():
+	# Dictionary to map weapon names to their corresponding scenes
+	var weapon_scenes = {
+		"Glock-19": fpp_pistol,
+		"AK-47": fpp_ak47,
+		"Knife": fpp_knife,
+		#"TPP_Glock-19": tpp_pistol,
+		#"TPP_AK-47": tpp_ak47,
+		#"TPP_Knife": tpp_knife
+	}
 	
 	# Connect new 'weapon_switched' signal from the Global script
 	var callable_gun_signal = Callable(self, "_on_weapon_switched")
@@ -61,10 +83,12 @@ func _ready():
 	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
+	# Initially weapon to display by default
+	initial_weapon = fpp_pistol
+
 	# Initialize camera and gun visibility based on the editor setting
 	update_camera_visibility()
-	update_gun_model_visibility()
-
+	update_weapon_model_visibility()
 
 func _unhandled_input(event):
 	if not is_multiplayer_authority(): return
@@ -87,7 +111,7 @@ func _unhandled_input(event):
 			print("empty")
 			print("failure")
 			return
-		#play_shoot_effects.rpc()
+		play_shoot_effects.rpc()
 		if is_fpp and fpp_raycast.is_colliding():
 			var hit_player = fpp_raycast.get_collider()
 			hit_player.receive_damage.rpc_id(hit_player.get_multiplayer_authority())
@@ -210,30 +234,44 @@ func add_health(additional_health):
 
 
 # Handle weapon switching based on the key inputs
-func _on_weapon_switched(gun_name):
-	print("Switched to weapon: %s" % gun_name)
-	
+func _on_weapon_switched(weapon_name):
+	print("Switched to weapon: %s" % weapon_name)
+	current_weapon_name = weapon_name
+	update_weapon_model_visibility()
+
+	## Check if the weapon name exists in the weapon_nodes dictionary
+	#if weapon_name in weapon_scenes:
+		## Hide the current weapon if it exists
+		#if initial_weapon:
+			#initial_weapon.visible = false
+	#
+		## Set the new current weapon and make it visible
+		#initial_weapon = weapon_scenes[weapon_name]
+		#initial_weapon.visible = true
+	#else:
+		#print("Weapon model not found for: %s" % weapon_name)
+
 	## TODO: Make this more logical
-	var weapon_node = get_node("FPPCamera/FPPPistol")
-	
-	# Remove existing children
-	var children = weapon_node.get_children()
-	if children.size() > 0:
-		for child in children:
-			#print(children)
-			weapon_node.remove_child(child)
-			child.queue_free()
-	
-	# Add new model based on gun_name
-	if gun_name == 'AK-47':
-		var ak_model = preload("res://models/AK/ak47.tscn").instantiate()
-		weapon_node.add_child(ak_model)
-	elif gun_name == 'Glock-19':
-		var glock_model = preload("res://models/Pistol.glb").instantiate()
-		weapon_node.add_child(glock_model)
-	elif gun_name == 'Knife':
-		var knife_model = preload("res://models/Knife/knife.tscn").instantiate()
-		weapon_node.add_child(knife_model)
+	#var weapon_node = get_node("FPPCamera/FPPPistol")
+	#
+	## Remove existing children
+	#var children = weapon_node.get_children()
+	#if children.size() > 0:
+		#for child in children:
+			##print(children)
+			#weapon_node.remove_child(child)
+			#child.queue_free()
+	#
+	## Add new model based on weapon_name
+	#if weapon_name == 'AK-47':
+		#var ak_model = preload("res://models/weapons/guns/ak47/ak47.tscn").instantiate()
+		#weapon_node.add_child(ak_model)
+	#elif weapon_name == 'Glock-19':
+		#var glock_model = preload("res://models/weapons/Pistol.glb").instantiate()
+		#weapon_node.add_child(glock_model)
+	#elif weapon_name == 'Knife':
+		#var knife_model = preload("res://models/weapons/knifes/knife.tscn").instantiate()
+		#weapon_node.add_child(knife_model)
 	## End of TODO
 
 
@@ -241,7 +279,7 @@ func _on_weapon_switched(gun_name):
 func toggle_different_camera_state():
 	is_fpp = not is_fpp
 	update_camera_visibility()
-	update_gun_model_visibility()
+	update_weapon_model_visibility()
 
 
 # Update player's camera view when player pressed the pre-defined key input
@@ -252,14 +290,44 @@ func update_camera_visibility():
 
 
 # Update the visibility of guns when player changed the camera view based on their preferrance
-func update_gun_model_visibility():
-	# For multiplayer (TODO: not worked yet but I'll just leave it here first)
-	if is_multiplayer_authority():
-		fpp_pistol.visible = is_fpp
-		tpp_pistol.visible = not is_fpp
-		multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), is_fpp)
-		multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), not is_fpp)
-	# For local
+func update_weapon_model_visibility():
+	## For multiplayer (TODO: not worked yet but I'll just leave it here first)
+	#if is_multiplayer_authority():
+		#fpp_pistol.visible = is_fpp
+		#tpp_pistol.visible = not is_fpp
+		#multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), is_fpp)
+		#multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), not is_fpp)
+	## For local
+	#else:
+		#fpp_pistol.visible = is_fpp
+		#tpp_pistol.visible = not is_fpp
+		
+	## Hide all weapons
+	#for weapon in weapon_scenes.values():
+		#if weapon:
+			#weapon.visible = false
+
+	# Hide all weapons
+	for weapon_name in weapon_scenes.keys():
+		var weapon = weapon_scenes[weapon_name]
+		if weapon:
+			weapon.visible = false
+			print("Hiding weapon: %s" % weapon_name)
+
+	# Show the selected weapon
+	if current_weapon_name in weapon_scenes and weapon_scenes[current_weapon_name]:
+		initial_weapon = weapon_scenes[current_weapon_name]
+		initial_weapon.visible = true
+		print("Showing weapon: %s" % current_weapon_name)
 	else:
-		fpp_pistol.visible = is_fpp
-		tpp_pistol.visible = not is_fpp
+		print("Weapon model not found for: %s" % current_weapon_name)
+
+	## Show the selected weapon based on the current camera view
+	#if is_fpp:
+		#if current_weapon_name in weapon_scenes and weapon_scenes[current_weapon_name]:
+			#initial_weapon = weapon_scenes[current_weapon_name]
+			#initial_weapon.visible = true
+	#else:
+		#if "TPP" + current_weapon_name in weapon_scenes and weapon_scenes["TPP" + current_weapon_name]:
+			#initial_weapon = weapon_scenes["TPP" + current_weapon_name]
+			#initial_weapon.visible = true

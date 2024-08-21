@@ -152,13 +152,13 @@ func _physics_process(delta):
 
 # Get defined key inputs
 func _input(event):
-# Switch guns in inventory slot according to the key inputs set for it
+	# Switch guns in inventory slot according to the key inputs set for it
 	if event.is_action_pressed("inventory_slot_1"):
-		Global.switch_gun(1)
+		Global.switch_weapon(1) # Glock-19
 	elif event.is_action_pressed("inventory_slot_2"):
-		Global.switch_gun(2)
+		Global.switch_weapon(2) # AK-47
 	elif event.is_action_pressed("inventory_slot_3"):
-		Global.switch_gun(3)
+		Global.switch_weapon(3) # Knife
 
 # Switch player's camera view according to the key inputs set for it
 	if event.is_action_pressed("dynamic_camera_view"):
@@ -211,7 +211,9 @@ func add_health(additional_health):
 
 # Handle weapon switching based on the key inputs
 func _on_weapon_switched(gun_name):
-	print("Switched to gun: %s" % gun_name)
+	print("Switched to weapon: %s" % gun_name)
+	
+	## TODO: Make this more logical
 	var weapon_node = get_node("FPPCamera/FPPPistol")
 	
 	# Remove existing children
@@ -232,14 +234,8 @@ func _on_weapon_switched(gun_name):
 	elif gun_name == 'Knife':
 		var knife_model = preload("res://models/Knife/knife.tscn").instantiate()
 		weapon_node.add_child(knife_model)
+	## End of TODO
 
-
-#func _on_weapon_switched(gun_name):
-	#print("Switched to gun: %s" % gun_name)
-	#if(gun_name == 'AK-47'):
-		#get_node("TPPCamera/TPPPistol") = preload("res://models/AK/akm.fbx")
-	#elif(gun_name == 'Glock-19'):
-		#preload("res://models/Pistol.glb")
 
 # Handle diffrent state of player's camera view
 func toggle_different_camera_state():

@@ -1,12 +1,12 @@
 [gd_scene load_steps=21 format=3 uid="uid://c6xxkytlbq8q2"]
 
 [ext_resource type="Script" path="res://Player.gd" id="1_ksfbt"]
-[ext_resource type="PackedScene" uid="uid://rge2rmqaquqm" path="res://models/characters/templateCharaterModel.glb" id="2_u05fy"]
-[ext_resource type="Texture2D" uid="uid://qna0vv6te2xs" path="res://addons/kenney_animated_characters/Skins/skaterMaleA.png" id="3_rtgxh"]
+[ext_resource type="PackedScene" uid="uid://cvey477smqw71" path="res://models/characters/templateCharaterModel.glb" id="2_u05fy"]
+[ext_resource type="Texture2D" uid="uid://c06olyt7bapq1" path="res://addons/kenney_animated_characters/Skins/skaterMaleA.png" id="3_rtgxh"]
 [ext_resource type="PackedScene" uid="uid://cf1dcxwv6bvl3" path="res://models/Pistol.glb" id="3_w7dyo"]
 [ext_resource type="Texture2D" uid="uid://vwob30tkwej4" path="res://addons/kenney_particle_pack/star_06.png" id="4_8wo5q"]
 [ext_resource type="PackedScene" uid="uid://5dx348xfaquf" path="res://models/AK/ak47.tscn" id="6_5fiyx"]
-[ext_resource type="PackedScene" uid="uid://dmkvoq1t3x3co" path="res://models/Knife/m9bayo2.fbx" id="7_f3j7s"]
+[ext_resource type="PackedScene" uid="uid://bdb6rgjho1y21" path="res://models/Knife/m9bayo2.fbx" id="7_f3j7s"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6l0xm"]
 albedo_texture = ExtResource("3_rtgxh")
@@ -282,13 +282,13 @@ draw_pass_1 = SubResource("PlaneMesh_hkkgb")
 transform = Transform3D(-1.31134e-08, 0, 0.3, 0, 0.3, 0, -0.3, 0, -1.31134e-08, 0.5, -0.25, -0.5)
 visible = false
 
-[node name="FPPRayCast3D" type="RayCast3D" parent="FPPCamera"]
-target_position = Vector3(0, 0, -50)
-collision_mask = 2
-
 [node name="Knife" parent="FPPCamera" instance=ExtResource("7_f3j7s")]
 transform = Transform3D(0.022064, -0.0324677, 0.0579571, 0.0634825, -0.0076897, -0.0284753, 0.0195743, 0.0615363, 0.0270209, 0.316559, -0.325936, -0.613832)
 visible = false
+
+[node name="FPPRayCast3D" type="RayCast3D" parent="FPPCamera"]
+target_position = Vector3(0, 0, -50)
+collision_mask = 2
 
 [node name="TPPCamera" type="Camera3D" parent="."]
 transform = Transform3D(2, 0, 0, 0, 1.80517, 0.861022, 0, -0.861022, 1.80517, 0, 5.525, 5)

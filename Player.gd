@@ -236,7 +236,7 @@ func add_health(additional_health):
 func _on_weapon_switched(weapon_name):
 	print("Switched to weapon: %s" % weapon_name)
 	current_weapon = weapon_name
-	update_weapon_model_visibility()
+	update_weapon_model_visibility()	
 
 
 # Handle diffrent state of player's camera view
@@ -255,25 +255,6 @@ func update_camera_visibility():
 
 # Update the visibility of guns when player changed the camera view based on their preferrance
 func update_weapon_model_visibility():
-	## For multiplayer (TODO: not worked yet but I'll just leave it here first)
-	#if is_multiplayer_authority():
-		#fpp_pistol.visible = is_fpp
-		#tpp_pistol.visible = not is_fpp
-		#multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), is_fpp)
-		#multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), not is_fpp)
-	## For local
-	#else:
-		#fpp_pistol.visible = is_fpp
-		#tpp_pistol.visible = not is_fpp
-
-	# Hide all weapons first
-	fpp_pistol.visible = initial_fpp_pistol_visible
-	fpp_ak47.visible = initial_fpp_ak47_visible
-	fpp_knife.visible = initial_fpp_knife_visible
-	tpp_pistol.visible = initial_tpp_pistol_visible
-	tpp_ak47.visible = initial_tpp_ak47_visible
-	tpp_knife.visible = initial_tpp_knife_visible
-
 	# Show the correct weapon based on the current weapon and camera view state
 	if is_fpp:
 		if current_weapon == "Glock-19":
@@ -289,3 +270,12 @@ func update_weapon_model_visibility():
 			tpp_ak47.visible = true
 		elif current_weapon == "Knife":
 			tpp_knife.visible = true
+
+	# Synchronize visibility for multiplayer
+	if is_multiplayer_authority():
+		multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), fpp_pistol.visible)
+		multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), fpp_ak47.visible)
+		multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), fpp_knife.visible)
+		multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), tpp_pistol.visible)
+		multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), tpp_ak47.visible)
+		multiplayer_sync.set_visibility_for(multiplayer.get_unique_id(), tpp_knife.visible)

@@ -23,8 +23,8 @@ enum DynamicCameraViewToggleAction {
 @onready var tpp_raycast: RayCast3D = $TPPCamera/TPPRayCast3D
 
 @onready var tpp_pistol: Node3D = $TPPCamera/TPPPistol
-#@onready var tpp_ak47: Node3D = $TPPCamera/TPPAK47
-#@onready var tpp_knife: Node3D = $TPPCamera/TPPKnife
+@onready var tpp_ak47: Node3D = $TPPCamera/TPPAK47
+@onready var tpp_knife: Node3D = $TPPCamera/TPPKnife
 
 # Multiplayer Synchronizer
 @onready var multiplayer_sync: MultiplayerSynchronizer = $MultiplayerSynchronizer
@@ -52,12 +52,16 @@ var gravity = 25.0
 # Track different state of camera node to toggle either FPP or TPP.
 var is_fpp: bool = true
 
-# Dictionary to map weapon names to their corresponding scenes
-var weapon_scenes = {}
+# Track the current weapon
+var current_weapon: String = ""
 
-# Set intial weapon to load
-var initial_weapon: Node3D
-var current_weapon_name: String = "Glock-19"
+# Store initial visibility states
+var initial_fpp_pistol_visible: bool = false
+var initial_fpp_ak47_visible: bool = false
+var initial_fpp_knife_visible: bool = false
+var initial_tpp_pistol_visible: bool = false
+var initial_tpp_ak47_visible: bool = false
+var initial_tpp_knife_visible: bool = false
 
 
 func _enter_tree():
@@ -65,16 +69,6 @@ func _enter_tree():
 
 
 func _ready():
-	# Dictionary to map weapon names to their corresponding scenes
-	var weapon_scenes = {
-		"Glock-19": fpp_pistol,
-		"AK-47": fpp_ak47,
-		"Knife": fpp_knife,
-		#"TPP_Glock-19": tpp_pistol,
-		#"TPP_AK-47": tpp_ak47,
-		#"TPP_Knife": tpp_knife
-	}
-	
 	# Connect new 'weapon_switched' signal from the Global script
 	var callable_gun_signal = Callable(self, "_on_weapon_switched")
 	Global.connect("weapon_switched", callable_gun_signal)
@@ -83,8 +77,13 @@ func _ready():
 	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
-	# Initially weapon to display by default
-	initial_weapon = fpp_pistol
+	# Store initial visibility states
+	initial_fpp_pistol_visible = fpp_pistol.visible
+	initial_fpp_ak47_visible = fpp_ak47.visible
+	initial_fpp_knife_visible = fpp_knife.visible
+	initial_tpp_pistol_visible = tpp_pistol.visible
+	initial_tpp_ak47_visible = tpp_ak47.visible
+	initial_tpp_knife_visible = tpp_knife.visible
 
 	# Initialize camera and gun visibility based on the editor setting
 	update_camera_visibility()
@@ -236,20 +235,8 @@ func add_health(additional_health):
 # Handle weapon switching based on the key inputs
 func _on_weapon_switched(weapon_name):
 	print("Switched to weapon: %s" % weapon_name)
-	current_weapon_name = weapon_name
+	current_weapon = weapon_name
 	update_weapon_model_visibility()
-
-	## Check if the weapon name exists in the weapon_nodes dictionary
-	#if weapon_name in weapon_scenes:
-		## Hide the current weapon if it exists
-		#if initial_weapon:
-			#initial_weapon.visible = false
-	#
-		## Set the new current weapon and make it visible
-		#initial_weapon = weapon_scenes[weapon_name]
-		#initial_weapon.visible = true
-	#else:
-		#print("Weapon model not found for: %s" % weapon_name)
 
 	## TODO: Make this more logical
 	#var weapon_node = get_node("FPPCamera/FPPPistol")
@@ -301,33 +288,27 @@ func update_weapon_model_visibility():
 	#else:
 		#fpp_pistol.visible = is_fpp
 		#tpp_pistol.visible = not is_fpp
-		
-	## Hide all weapons
-	#for weapon in weapon_scenes.values():
-		#if weapon:
-			#weapon.visible = false
 
-	# Hide all weapons
-	for weapon_name in weapon_scenes.keys():
-		var weapon = weapon_scenes[weapon_name]
-		if weapon:
-			weapon.visible = false
-			print("Hiding weapon: %s" % weapon_name)
+	# Hide all weapons first
+	fpp_pistol.visible = initial_fpp_pistol_visible
+	fpp_ak47.visible = initial_fpp_ak47_visible
+	fpp_knife.visible = initial_fpp_knife_visible
+	tpp_pistol.visible = initial_tpp_pistol_visible
+	tpp_ak47.visible = initial_tpp_ak47_visible
+	tpp_knife.visible = initial_tpp_knife_visible
 
-	# Show the selected weapon
-	if current_weapon_name in weapon_scenes and weapon_scenes[current_weapon_name]:
-		initial_weapon = weapon_scenes[current_weapon_name]
-		initial_weapon.visible = true
-		print("Showing weapon: %s" % current_weapon_name)
+	# Show the correct weapon based on the current weapon and camera view state
+	if is_fpp:
+		if current_weapon == "Glock-19":
+			fpp_pistol.visible = true
+		elif current_weapon == "AK-47":
+			fpp_ak47.visible = true
+		elif current_weapon == "Knife":
+			fpp_knife.visible = true
 	else:
-		print("Weapon model not found for: %s" % current_weapon_name)
-
-	## Show the selected weapon based on the current camera view
-	#if is_fpp:
-		#if current_weapon_name in weapon_scenes and weapon_scenes[current_weapon_name]:
-			#initial_weapon = weapon_scenes[current_weapon_name]
-			#initial_weapon.visible = true
-	#else:
-		#if "TPP" + current_weapon_name in weapon_scenes and weapon_scenes["TPP" + current_weapon_name]:
-			#initial_weapon = weapon_scenes["TPP" + current_weapon_name]
-			#initial_weapon.visible = true
+		if current_weapon == "Glock-19":
+			tpp_pistol.visible = true
+		elif current_weapon == "AK-47":
+			tpp_ak47.visible = true
+		elif current_weapon == "Knife":
+			tpp_knife.visible = true

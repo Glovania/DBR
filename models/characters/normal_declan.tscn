@@ -362,10 +362,10 @@ collision_mask = 2
 
 [node name="TPPCamera" type="Camera3D" parent="."]
 transform = Transform3D(2, 0, 0, 0, 1.80517, 0.861022, 0, -0.861022, 1.80517, 0, 5.525, 5)
-visible = false
 
 [node name="TPPPistol" parent="TPPCamera" instance=ExtResource("3_w7dyo")]
 transform = Transform3D(1, 0, 0, 0, 0.622514, -0.782608, 0, 0.782608, 0.622514, 0.499933, -0.0734346, -3.35847)
+visible = false
 
 [node name="MuzzleFlash" type="GPUParticles3D" parent="TPPCamera/TPPPistol"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0588368, -0.313209)
@@ -378,9 +378,11 @@ process_material = SubResource("ParticleProcessMaterial_yy8r8")
 draw_pass_1 = SubResource("PlaneMesh_hkkgb")
 
 [node name="TPPAK47" parent="TPPCamera" instance=ExtResource("7_s6bf2")]
+visible = false
 
 [node name="TPPKnife" parent="TPPCamera" instance=ExtResource("6_es8m2")]
 transform = Transform3D(0.0975746, -0.00146079, 0.0218418, 0.017235, 0.0666429, -0.0725374, -0.0134964, 0.0745426, 0.0652783, 0.425, 0.045, -0.515)
+visible = false
 
 [node name="TPPRayCast3D" type="RayCast3D" parent="TPPCamera"]
 target_position = Vector3(0, 0, -50)

@@ -14,7 +14,7 @@ enum DynamicCameraViewToggleAction {
 @onready var fpp_raycast: RayCast3D = $FPPCamera/FPPRayCast3D
 
 @onready var fpp_pistol: Node3D = $FPPCamera/FPPPistol
-@onready var fpp_ak47: Node3D = $FPPCamera/FPPAK47
+@onready var fpp_ak47: Node3D = $FPPCamera/FPPAK47		
 @onready var fpp_knife: Node3D = $FPPCamera/FPPKnife
 
 # Third Player View (TPP)
@@ -237,29 +237,6 @@ func _on_weapon_switched(weapon_name):
 	print("Switched to weapon: %s" % weapon_name)
 	current_weapon = weapon_name
 	update_weapon_model_visibility()
-
-	## TODO: Make this more logical
-	#var weapon_node = get_node("FPPCamera/FPPPistol")
-	#
-	## Remove existing children
-	#var children = weapon_node.get_children()
-	#if children.size() > 0:
-		#for child in children:
-			##print(children)
-			#weapon_node.remove_child(child)
-			#child.queue_free()
-	#
-	## Add new model based on weapon_name
-	#if weapon_name == 'AK-47':
-		#var ak_model = preload("res://models/weapons/guns/ak47/ak47.tscn").instantiate()
-		#weapon_node.add_child(ak_model)
-	#elif weapon_name == 'Glock-19':
-		#var glock_model = preload("res://models/weapons/Pistol.glb").instantiate()
-		#weapon_node.add_child(glock_model)
-	#elif weapon_name == 'Knife':
-		#var knife_model = preload("res://models/weapons/knifes/knife.tscn").instantiate()
-		#weapon_node.add_child(knife_model)
-	## End of TODO
 
 
 # Handle diffrent state of player's camera view
